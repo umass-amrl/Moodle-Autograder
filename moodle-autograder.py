@@ -6,17 +6,23 @@ import os
 import sys
 
 if len(sys.argv) < 2:
-  print 'Usage: ./grade GRADING_WORKSHEET.csv'
+  print 'Usage: moodle-autograder grading_worksheet.csv [output_worksheet.csv]'
   sys.exit(1)
-filename = sys.argv[1]
-print 'Using grader worksheet "' + filename + '"\n\n'
+grading_worksheet = sys.argv[1]
 
-if not os.path.isfile(filename):
+output_worksheet = 'grades.csv'
+if len(sys.argv) > 2:
+  output_worksheet = sys.argv[2]
+print 'Grading worksheet : "' + grading_worksheet + '"'
+print 'Output worksheet : "' + output_worksheet + '"'
+print '\n\n'
+
+if not os.path.isfile(grading_worksheet):
   print 'ERROR: grader worksheet not a valid file!'
   sys.exit(2)
 
-grader_output = open('grades.csv', 'wb')
-grader_input = open(filename, 'rb')
+grader_output = open(output_worksheet, 'wb')
+grader_input = open(grading_worksheet, 'rb')
 reader = csv.DictReader(grader_input, delimiter=',', quotechar='"')
 fieldnames = reader.fieldnames
 writer = csv.DictWriter(grader_output, 
