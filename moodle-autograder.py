@@ -17,7 +17,10 @@
 import csv
 import glob
 import os
+import shutil
+import subprocess
 import sys
+import tempfile
 
 if len(sys.argv) < 2:
   print 'Usage: moodle-autograder grading_worksheet.csv [output_worksheet.csv]'
@@ -39,16 +42,16 @@ grader_output = open(output_worksheet, 'wb')
 grader_input = open(grading_worksheet, 'rb')
 reader = csv.DictReader(grader_input, delimiter=',', quotechar='"')
 fieldnames = reader.fieldnames
-writer = csv.DictWriter(grader_output, 
-                       delimiter = ',', 
-                       quotechar = '"', 
+writer = csv.DictWriter(grader_output,
+                       delimiter = ',',
+                       quotechar = '"',
                        fieldnames = fieldnames)
 writer.writeheader()
 
 for row in reader:
   #print row
   identifier = (row['Identifier'])[-7:]
-  # print identifier
+  # print "Identifier: " + identifier
   submissions = glob.glob('*' + identifier + '*')
   if len(submissions) == 0:
     print 'ERROR: ' + row['Full name'] + ' (' + row['Email address'] + \
@@ -60,13 +63,30 @@ for row in reader:
     continue
   submission = submissions[0]
   print submission
-  
+
+  # Set up test directory.
+  temp_dir = tempfile.mkdtemp()
+  print temp_dir
+  shutil.copy('grader.sh', temp_dir + '/grader.sh');
+  shutil.copy(submission, temp_dir + '/' + submission);
+
   # Assign grade here.
-  grade = 42
-  
+  try:
+    grader_process = subprocess.Popen(['./grader.sh'], cwd=temp_dir)
+    grader_process.wait()
+    f = open(temp_dir + '/score.txt', 'r')
+    grade = f.read();
+    f.close()
+  except Exception as e:
+    print "Exception occurred: " + str(e)
+    grade = 0
+
+  # Cleanup.
+  shutil.rmtree(temp_dir)
+
   row['Grade'] = grade
   writer.writerow(row)
-    
+
 
 grader_input.close()
 grader_output.close()
