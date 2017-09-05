@@ -66,7 +66,6 @@ for row in reader:
 
   # Set up test directory.
   temp_dir = tempfile.mkdtemp()
-  print temp_dir
   shutil.copy('grader.sh', temp_dir + '/grader.sh');
   shutil.copytree(submission, temp_dir + '/' + submission);
 
