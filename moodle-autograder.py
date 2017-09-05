@@ -68,14 +68,16 @@ for row in reader:
   temp_dir = tempfile.mkdtemp()
   print temp_dir
   shutil.copy('grader.sh', temp_dir + '/grader.sh');
-  shutil.copy(submission, temp_dir + '/' + submission);
+  shutil.copytree(submission, temp_dir + '/' + submission);
 
   # Assign grade here.
   try:
     grader_process = subprocess.Popen(['./grader.sh'], cwd=temp_dir)
     grader_process.wait()
+    # Expects that a file named score.txt will be created in the temp
+    # directory.
     f = open(temp_dir + '/score.txt', 'r')
-    grade = f.read();
+    grade = float(f.read());
     f.close()
   except Exception as e:
     print "Exception occurred: " + str(e)
