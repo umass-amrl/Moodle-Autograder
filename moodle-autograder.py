@@ -85,7 +85,7 @@ for row in reader:
 
   # Cleanup.
   shutil.rmtree(temp_dir)
-
+  print "Grade: ", grade
   row['Grade'] = grade
   writer.writerow(row)
 

@@ -1,11 +1,7 @@
 #!/bin/bash
-echo "Hello world from grader1"
-echo "$1"
 a=$1
 student_username=${a%@*}
-echo "$student_username"
-ls *_file_/*.tar.gz
-tar -xvzf *_file_/*.tar.gz
+tar -xvzf *_file_/*.tar.gz > /dev/null
 clang++ -std=c++11 helloworld.cpp -o helloworld
 output=$(./helloworld)
 ./helloworld > /dev/null
