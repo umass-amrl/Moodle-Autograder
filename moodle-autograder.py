@@ -50,7 +50,7 @@ writer.writeheader()
 
 for row in reader:
   #print row
-  identifier = (row['Identifier'])[-7:]
+  identifier = (row['\xef\xbb\xbfIdentifier'])[-7:]
   # print "Identifier: " + identifier
   submissions = glob.glob('*' + identifier + '*')
   if len(submissions) == 0:
