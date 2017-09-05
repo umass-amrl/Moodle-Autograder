@@ -72,7 +72,7 @@ for row in reader:
 
   # Assign grade here.
   try:
-    grader_process = subprocess.Popen(['./grader.sh'], cwd=temp_dir)
+    grader_process = subprocess.Popen(['./grader.sh', row['Email address']], cwd=temp_dir)
     grader_process.wait()
     # Expects that a file named score.txt will be created in the temp
     # directory.
