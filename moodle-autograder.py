@@ -79,14 +79,19 @@ for row in reader:
     f = open(temp_dir + '/score.txt', 'r')
     grade = float(f.read());
     f.close()
+    f = open(temp_dir + '/feedback.txt', 'r')
+    feedback = f.read();
+    f.close()
   except Exception as e:
     print "Exception occurred: " + str(e)
     grade = 0
+    feedback = "Failed to open grader. This is probably an infrastructure issue."
 
   # Cleanup.
   shutil.rmtree(temp_dir)
   print "Grade: ", grade
   row['Grade'] = grade
+  row['Feedback comments'] = feedback
   writer.writerow(row)
 
 
