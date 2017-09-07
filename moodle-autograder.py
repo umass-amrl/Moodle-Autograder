@@ -21,15 +21,16 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import zipfile
 
-if len(sys.argv) < 2:
-  print 'Usage: moodle-autograder grading_worksheet.csv [output_worksheet.csv]'
+if len(sys.argv) < 3:
+  print 'Usage: moodle-autograder grading_worksheet.csv submissions.zip [output_worksheet.csv]'
   sys.exit(1)
 grading_worksheet = sys.argv[1]
-
+submissions_zip = sys.argv[2]
 output_worksheet = 'grades.csv'
-if len(sys.argv) > 2:
-  output_worksheet = sys.argv[2]
+if len(sys.argv) > 3:
+  output_worksheet = sys.argv[3]
 print 'Grading worksheet : "' + grading_worksheet + '"'
 print 'Output worksheet : "' + output_worksheet + '"'
 print '\n\n'
@@ -37,6 +38,15 @@ print '\n\n'
 if not os.path.isfile(grading_worksheet):
   print 'ERROR: grader worksheet not a valid file!'
   sys.exit(2)
+
+if not os.path.isfile(submissions_zip):
+  print 'ERROR: submissions.zip is not a valid file!'
+  sys.exit(3)
+
+submissions_file = zipfile.ZipFile(submissions_zip, 'r')
+temp_all_submissions = tempfile.mkdtemp()
+submissions_file.extractall(temp_all_submissions)
+submissions_file.close()
 
 grader_output = open(output_worksheet, 'wb')
 grader_input = open(grading_worksheet, 'rb')
@@ -52,7 +62,9 @@ for row in reader:
   #print row
   identifier = (row['\xef\xbb\xbfIdentifier'])[-7:]
   # print "Identifier: " + identifier
-  submissions = glob.glob('*' + identifier + '*')
+  path_query = os.path.join(temp_all_submissions, '*' + identifier + '*')
+  # print path_query
+  submissions = glob.glob(path_query)
   if len(submissions) == 0:
     print 'ERROR: ' + row['Full name'] + ' (' + row['Email address'] + \
         ') has no submission'
@@ -63,22 +75,24 @@ for row in reader:
     continue
   submission = submissions[0]
   print submission
+  submission_folder = submission.replace(temp_all_submissions,"")
+  # print submission_folder
 
   # Set up test directory.
-  temp_dir = tempfile.mkdtemp()
-  shutil.copy('grader.sh', temp_dir + '/grader.sh');
-  shutil.copytree(submission, temp_dir + '/' + submission);
+  temp_submission = tempfile.mkdtemp()
+  shutil.copy('grader.sh', temp_submission + '/grader.sh');
+  shutil.copytree(submission, temp_submission + '/' + submission_folder);
 
   # Assign grade here.
   try:
-    grader_process = subprocess.Popen(['./grader.sh', row['Email address']], cwd=temp_dir)
+    grader_process = subprocess.Popen(['./grader.sh', row['Email address']], cwd=temp_submission)
     grader_process.wait()
     # Expects that a file named score.txt will be created in the temp
     # directory.
-    f = open(temp_dir + '/score.txt', 'r')
+    f = open(temp_submission + '/score.txt', 'r')
     grade = float(f.read());
     f.close()
-    f = open(temp_dir + '/feedback.txt', 'r')
+    f = open(temp_submission + '/feedback.txt', 'r')
     feedback = f.read();
     f.close()
   except Exception as e:
@@ -87,12 +101,12 @@ for row in reader:
     feedback = "Failed to open grader. This is probably an infrastructure issue."
 
   # Cleanup.
-  shutil.rmtree(temp_dir)
+  shutil.rmtree(temp_submission)
   print "Grade: ", grade
   row['Grade'] = grade
   row['Feedback comments'] = feedback
   writer.writerow(row)
 
-
+shutil.rmtree(temp_all_submissions)
 grader_input.close()
 grader_output.close()
