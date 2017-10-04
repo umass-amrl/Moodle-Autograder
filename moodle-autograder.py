@@ -22,6 +22,7 @@ import subprocess
 import sys
 import tempfile
 import zipfile
+import time
 
 if len(sys.argv) < 3:
   print 'Usage: moodle-autograder grading_worksheet.csv submissions.zip [output_worksheet.csv]'
@@ -104,7 +105,8 @@ for row in reader:
   shutil.rmtree(temp_submission)
   print "Grade: ", grade
   row['Grade'] = grade
-  row['Feedback comments'] = feedback
+  row['Feedback comments'] = "Feedback updated on " + \
+    time.strftime("%A, %B %d,%Y, %I:%M %p") + ":" + feedback
   writer.writerow(row)
 
 shutil.rmtree(temp_all_submissions)
