@@ -1,1 +1,1 @@
-../COMPSCI220-R/assignments/assignment-2/grader2.sh
+../COMPSCI220-R/assignments/assignment-6/grader.py

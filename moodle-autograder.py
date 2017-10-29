@@ -24,14 +24,15 @@ import tempfile
 import zipfile
 import time
 
-if len(sys.argv) < 3:
-  print 'Usage: moodle-autograder grading_worksheet.csv submissions.zip [output_worksheet.csv]'
+if len(sys.argv) < 4:
+  print 'Usage: moodle-autograder grading_worksheet.csv submissions.zip COMPSCI-220-Rdirectory/ [output_worksheet.csv]'
   sys.exit(1)
 grading_worksheet = sys.argv[1]
 submissions_zip = sys.argv[2]
+cs220r_directory = os.path.abspath(sys.argv[3]) 
 output_worksheet = 'grades.csv'
-if len(sys.argv) > 3:
-  output_worksheet = sys.argv[3]
+if len(sys.argv) > 4:
+  output_worksheet = sys.argv[4]
 print 'Grading worksheet : "' + grading_worksheet + '"'
 print 'Output worksheet : "' + output_worksheet + '"'
 print '\n\n'
@@ -43,6 +44,7 @@ if not os.path.isfile(grading_worksheet):
 if not os.path.isfile(submissions_zip):
   print 'ERROR: submissions.zip is not a valid file!'
   sys.exit(3)
+
 
 submissions_file = zipfile.ZipFile(submissions_zip, 'r')
 temp_all_submissions = tempfile.mkdtemp()
@@ -86,7 +88,7 @@ for row in reader:
 
   # Assign grade here.
   try:
-    grader_process = subprocess.Popen(['./grader.sh', row['Email address']], cwd=temp_submission)
+    grader_process = subprocess.Popen(['./grader.sh', row['Email address'], cs220r_directory], cwd=temp_submission)
     grader_process.wait()
     # Expects that a file named score.txt will be created in the temp
     # directory.
