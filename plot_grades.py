@@ -12,8 +12,14 @@ csvfile = open(sys.argv[1], 'rt')
 bin_size = int(sys.argv[2])
 max_grade = int(sys.argv[3])
 reader = csv.reader(csvfile, delimiter=',', quotechar='"')
-grades = [row[4] for row in reader]
-grades = sorted([float(g) for g in grades[1:]])
+raw_data = [row for row in reader][1:]
+grades = sorted([float(row[4]) for row in raw_data])
+zeros_comments = [row[9] for row in raw_data if float(row[4]) <= 0]
+zeros_comments = [comment.replace('\\n', '\n') for comment in zeros_comments]
+for c in zeros_comments:
+    print("==========================")
+    print(c)
+    print("==========================")
 print("Grades: {}".format(grades))
 print("Students with perfect scores: {}".format(len([g for g in grades if g >= max_grade])))
 print("Students 100+: {}".format(len([g for g in grades if g >= 100])))
