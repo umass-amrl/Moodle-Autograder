@@ -3,14 +3,14 @@ import csv
 import sys
 import matplotlib.pyplot as plt
 
-bin_size = 1
-max_grade = 110
 
-if len(sys.argv) < 2:
-    print("Usage: plot_grades.py <output CSV file>")
+if len(sys.argv) < 4:
+    print("Usage: plot_grades.py <output CSV file> <bin size> <max_grade>")
     exit(-1)
 
 csvfile = open(sys.argv[1], 'rt')
+bin_size = int(sys.argv[2])
+max_grade = int(sys.argv[3])
 reader = csv.reader(csvfile, delimiter=',', quotechar='"')
 grades = [row[4] for row in reader]
 grades = sorted([float(g) for g in grades[1:]])
@@ -28,5 +28,5 @@ plt.xlabel('Grade')
 plt.ylabel('Number of students')
 plt.title('Histogram of students grades, bin size of {}, max grade of {}'.format(bin_size, str(max_grade)))
 plt.grid(True)
-plt.xlim([0, 110])
+plt.xlim([0, max_grade])
 plt.show()
