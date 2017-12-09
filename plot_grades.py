@@ -28,8 +28,9 @@ print("Students [80 to 90): {}".format(len([g for g in grades if g >= 80 and g <
 print("Students [70 to 80): {}".format(len([g for g in grades if g >= 70 and g < 80])))
 print("Students [60 to 70): {}".format(len([g for g in grades if g >= 60 and g < 70])))
 print("Students below 60: {}".format(len([g for g in grades if g < 60])))
+print("Average score: {}".format(sum(grades) / len(grades)))
 bins = [bin_size * x for x in range(int(max_grade / bin_size) + 1)]
-plt.hist(grades, bins=bins , facecolor='green', alpha=0.75)
+plt.hist(grades, bins=bins , facecolor='red', alpha=0.75)
 plt.xlabel('Grade')
 plt.ylabel('Number of students')
 plt.title('Histogram of students grades, bin size of {}, max grade of {}'.format(bin_size, str(max_grade)))
