@@ -74,7 +74,7 @@ def get_late_days(reader):
           days_used += (val / 24 / 60)
         elif "sec" in modifier:
           days_used += (val / 24 / 60 / 60)
-      leniency_amount = 5 / 60 / 24
+      leniency_amount = 20 / 60 / 24
       return (("Handed in " + late_string + "!"), int(math.ceil(days_used - leniency_amount)))
     else:
       return ("Handed in on time!", 0)
