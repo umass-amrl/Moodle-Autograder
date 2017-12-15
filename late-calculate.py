@@ -26,6 +26,8 @@ import time
 import math
 from functools import reduce
 
+csv.field_size_limit(sys.maxsize)
+
 if len(sys.argv) < 3:
   print ('Usage: late-calculate.py output_worksheet.csv assignements_worksheet.csv*')
   sys.exit(1)
