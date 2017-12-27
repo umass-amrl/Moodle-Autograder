@@ -29,10 +29,11 @@ from functools import reduce
 csv.field_size_limit(sys.maxsize)
 
 if len(sys.argv) < 3:
-  print ('Usage: late-calculate.py output_worksheet.csv assignements_worksheet.csv*')
+  print ('Usage: late-calculate.py output_worksheet.csv reference_worksheet assignements_worksheet.csv*')
   sys.exit(1)
 output_worksheet = sys.argv[1]
-grading_worksheets = sys.argv[2:]
+reference_worksheet = sys.argv[2]
+grading_worksheets = sys.argv[3:]
 print ('Output worksheet : "' + output_worksheet + '"')
 files = {}
 for assignment in grading_worksheets:
@@ -45,11 +46,11 @@ def get_fieldnames(file):
                         delimiter=',', quotechar='"').fieldnames
 
 def setup_output_writer(output_worksheet, grading_worksheets):
-  header_list = ['Email address']#get_fieldnames(grading_worksheets[0])
+  header_list = ['First name', 'Last name','Email address']#get_fieldnames(grading_worksheets[0])
   for grading_worksheet in grading_worksheets:
     header_list.append(grading_worksheet + "_Late_Days")
     header_list.append(grading_worksheet + "_Grade")
-  print(header_list)
+  # print(header_list)
   header_list.append('Total Late Days')
   writer = csv.DictWriter(open(output_worksheet, 'wt'),
                         delimiter = ',',
@@ -106,14 +107,25 @@ writer = setup_output_writer(output_worksheet, grading_worksheets)
 readers = setup_input_readers(grading_worksheets)
 late_days_used = {}
 student_grades = {}
-reference_reader = csv.DictReader(open(grading_worksheets[0],
-                                  'rt'),delimiter=',',quotechar='"') 
+reference_file = open(reference_worksheet,'rt')
+reference_reader = csv.DictReader(reference_file,
+  delimiter=',',quotechar='"') 
+first_names = {}
+last_names = {}
 for row in reference_reader:
+  first_names[row['Email address']] = row['First name']
+  last_names[row['Email address']] = row['Last name']
   late_days_used[row['Email address']] , \
   student_grades[row['Email address']]= get_student_score(readers, row['Email address'])
-
-for student_email, student_late_days in late_days_used.items():
+reference_file.seek(0);
+for ref_row in reference_reader:
+  if ref_row['Email address'] == 'Email address':
+    continue  
+  student_email = ref_row['Email address']
+  student_late_days = late_days_used[student_email]
   row = {}
+  row['First name'] = first_names[student_email]
+  row['Last name'] = last_names[student_email]
   row['Total Late Days'] = 0
   row['Email address'] = student_email
   for assignment, grade in student_grades[student_email].items(): 
